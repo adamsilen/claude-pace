@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 100 100">
+  <rect width="100" height="100" rx="22" fill="#151513"/>
+  <rect x="3" y="3" width="94" height="94" rx="19" fill="none" stroke="#2A2925" stroke-width="2"/>
+  <!-- Track background -->
+  <rect x="16" y="42" width="68" height="16" rx="8" fill="#162847"/>
+  <!-- Quota fill -->
+  <rect x="16" y="42" width="42" height="16" rx="8" fill="#3B82F6"/>
+  <!-- NOW marker needle -->
+  <rect x="62" y="24" width="6" height="52" rx="3" fill="#D97757"/>
+  <circle cx="65" cy="24" r="5" fill="#D97757"/>
+</svg>

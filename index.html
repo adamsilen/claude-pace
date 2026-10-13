@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude Pace</title>
+  <meta name="theme-color" content="#0f0f0e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Claude Pace" />
+
+  <!-- Browser & Pinned Tab Icons -->
+  <link
+    id="svgFavicon"
+    rel="icon"
+    type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23151513'/%3E%3Crect x='3' y='3' width='94' height='94' rx='19' fill='none' stroke='%232A2925' stroke-width='2'/%3E%3Crect x='16' y='42' width='68' height='16' rx='8' fill='%23162847'/%3E%3Crect x='16' y='42' width='42' height='16' rx='8' fill='%233B82F6'/%3E%3Crect x='62' y='24' width='6' height='52' rx='3' fill='%23D97757'/%3E%3Ccircle cx='65' cy='24' r='5' fill='%23D97757'/%3E%3C/svg%3E"
+  />
+  <link id="pngFavicon" rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
+  <link id="appleTouchIcon" rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png" />
+  <link rel="mask-icon" href="icons/mask-icon.svg" color="#D97757" />
+  <link rel="manifest" href="manifest.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #0f0f0e;
+      --bg-card: #171715;
+      --bg-elevated: #1f1f1c;
+      --bg-input: #121210;
+      --border-subtle: rgba(255, 252, 240, 0.08);
+      --border-strong: rgba(255, 252, 240, 0.16);
+      --text-primary: #f3f1ea;
+      --text-secondary: #a6a39b;
+      --text-muted: #6e6b63;
+      --claude-blue: #3b82f6;
+      --claude-blue-track: #13233f;
+      --claude-coral: #d97757;
+      --status-good: #34d399;
+      --status-good-bg: rgba(52, 211, 153, 0.12);
+      --status-even: #60a5fa;
+      --status-even-bg: rgba(96, 165, 250, 0.12);
+      --status-warn: #fbbf24;
+      --status-warn-bg: rgba(251, 191, 36, 0.12);
+      --status-hot: #f87171;
+      --status-hot-bg: rgba(248, 113, 113, 0.12);
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-serif: 'Instrument Serif', Georgia, serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      background-image: 
+        radial-gradient(circle at 18% 0%, rgba(59, 130, 246, 0.07) 0%, transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(217, 119, 87, 0.06) 0%, transparent 45%);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 36px 20px 60px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      flex-shrink: 0;
+    }
+
+    .brand h1 {
+      font-family: var(--font-serif);
+      font-weight: 400;
+      font-size: 1.85rem;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .live-clock {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      padding: 6px 12px;
+      border-radius: 999px;
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--status-good);
+      box-shadow: 0 0 8px var(--status-good);
+      animation: pulse 2.4s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Card base */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.55);
+    }
+
+    /* Controls Grid */
+    .controls-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 20px;
+      align-items: center;
+    }
+
+    @media (max-width: 600px) {
+      .controls-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .control-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 22px;
+    }
+
+    .control-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+    }
+
+    .usage-input-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .number-input-wrap {
+      display: flex;
+      align-items: center;
+      background: var(--bg-input);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 5px 11px;
+      width: 104px;
+      transition: border-color 0.15s ease;
+    }
+
+    .number-input-wrap:focus-within {
+      border-color: var(--claude-blue);
+    }
+
+    .number-input-wrap input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 1.25rem;
+      font-weight: 600;
+      outline: none;
+      -moz-appearance: textfield;
+    }
+
+    .number-input-wrap input::-webkit-outer-spin-button,
+    .number-input-wrap input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .unit-suffix {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-left: 2px;
+      user-select: none;
+    }
+
+    .slider-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      background: var(--claude-blue-track);
+      border-radius: 999px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--text-primary);
+      border: 3px solid var(--claude-blue);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+      cursor: grab;
+      transition: transform 0.12s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:active {
+      cursor: grabbing;
+      transform: scale(1.1);
+    }
+
+    .quick-steps {
+      display: flex;
+      gap: 4px;
+    }
+
+    .chip-btn {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 3px 7px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+
+    .chip-btn:hover {
+      color: var(--text-primary);
+      border-color: var(--border-strong);
+      background: #272723;
+    }
+
+    /* Reset Schedule Controls */
+    .reset-schedule-box {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-left: 20px;
+      border-left: 1px solid var(--border-subtle);
+    }
+
+    @media (max-width: 600px) {
+      .reset-schedule-box {
+        padding-left: 0;
+        padding-top: 16px;
+        border-left: none;
+        border-top: 1px solid var(--border-subtle);
+      }
+    }
+
+    .schedule-inputs {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 8px;
+    }
+
+    select,
+    input[type="time"] {
+      background: var(--bg-input);
+      border: 1px solid var(--border-strong);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      padding: 8px 10px;
+      border-radius: var(--radius-md);
+      outline: none;
+      cursor: pointer;
+    }
+
+    select:focus,
+    input[type="time"]:focus {
+      border-color: var(--claude-blue);
+    }
+
+    .reset-default-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      display: none;
+    }
+
+    .reset-default-btn.visible {
+      display: inline;
+    }
+
+    .reset-default-btn:hover {
+      color: var(--text-secondary);
+    }
+
+    /* Verdict Header */
+    .verdict-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .verdict-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .verdict-badge {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 5px 10px;
+      border-radius: 999px;
+    }
+
+    .verdict-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      color: var(--text-primary);
+    }
+
+    .delta-readout {
+      font-family: var(--font-mono);
+      font-size: 1.35rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    /* Single Track Gauge */
+    .gauge-box {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 22px 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .track-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .track-meta strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .bar-outer {
+      position: relative;
+      height: 14px;
+      background: var(--claude-blue-track);
+      border-radius: 999px;
+    }
+
+    .bar-fill-usage {
+      height: 100%;
+      background: var(--claude-blue);
+      border-radius: 999px;
+      transition: width 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* NOW Marker on Usage Bar */
+    .pace-marker {
+      position: absolute;
+      top: -6px;
+      bottom: -6px;
+      width: 2.5px;
+      background: var(--claude-coral);
+      border-radius: 2px;
+      z-index: 4;
+      pointer-events: none;
+      transition: left 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .pace-marker-label {
+      position: absolute;
+      bottom: calc(100% + 5px);
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      color: var(--claude-coral);
+      background: var(--bg-card);
+      border: 1px solid rgba(217, 119, 87, 0.35);
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    /* 7-Day Axis Strip */
+    .week-strip {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      padding-top: 4px;
+    }
+
+    .day-cell {
+      background: rgba(255, 255, 255, 0.015);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 6px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .day-cell.current {
+      border-color: rgba(217, 119, 87, 0.55);
+    }
+
+    .day-cell-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      background: rgba(217, 119, 87, 0.11);
+      pointer-events: none;
+    }
+
+    .day-name {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      position: relative;
+      z-index: 1;
+    }
+
+    .day-cell.current .day-name {
+      color: var(--text-primary);
+    }
+
+    .day-pct {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Metrics Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .metric-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+
+    .metric-primary {
+      font-family: var(--font-mono);
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      margin-top: 2px;
+    }
+
+    .metric-sub {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <!-- Top Header -->
+    <header class="header">
+      <div class="brand">
+        <svg class="brand-icon" viewBox="0 0 100 100" aria-hidden="true">
+          <rect width="100" height="100" rx="22" fill="#151513"/>
+          <rect x="3" y="3" width="94" height="94" rx="19" fill="none" stroke="#2A2925" stroke-width="3"/>
+          <rect x="16" y="42" width="68" height="16" rx="8" fill="#162847"/>
+          <rect x="16" y="42" width="42" height="16" rx="8" fill="#3B82F6"/>
+          <rect x="62" y="24" width="6" height="52" rx="3" fill="#D97757"/>
+          <circle cx="65" cy="24" r="5" fill="#D97757"/>
+        </svg>
+        <h1>Claude Pace</h1>
+      </div>
+      <div class="live-clock">
+        <span class="pulse-dot"></span>
+        <span id="liveTimeDisplay">…</span>
+      </div>
+    </header>
+
+    <!-- Inputs Card -->
+    <section class="card controls-grid" aria-label="Settings">
+      <div class="control-group">
+        <div class="control-label-row">
+          <label class="control-label" for="usageInput">Used</label>
+          <div class="quick-steps">
+            <button type="button" class="chip-btn" data-step="-5">-5</button>
+            <button type="button" class="chip-btn" data-step="-1">-1</button>
+            <button type="button" class="chip-btn" data-step="1">+1</button>
+            <button type="button" class="chip-btn" data-step="5">+5</button>
+          </div>
+        </div>
+        <div class="usage-input-row">
+          <div class="number-input-wrap">
+            <input
+              id="usageInput"
+              type="number"
+              min="0"
+              max="100"
+              step="1"
+              value="60"
+            />
+            <span class="unit-suffix">%</span>
+          </div>
+          <div class="slider-wrap">
+            <input
+              id="usageSlider"
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value="60"
+              aria-label="Usage percentage"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="reset-schedule-box">
+        <div class="control-label-row">
+          <label class="control-label" for="resetDaySelect">Weekly reset</label>
+          <button type="button" class="reset-default-btn" id="restoreDefaultSchedule">
+            Restore Fri 12:00
+          </button>
+        </div>
+        <div class="schedule-inputs">
+          <select id="resetDaySelect" aria-label="Reset day">
+            <option value="1">Monday</option>
+            <option value="2">Tuesday</option>
+            <option value="3">Wednesday</option>
+            <option value="4">Thursday</option>
+            <option value="5" selected>Friday</option>
+            <option value="6">Saturday</option>
+            <option value="0">Sunday</option>
+          </select>
+          <input
+            id="resetTimeInput"
+            type="time"
+            value="12:00"
+            aria-label="Reset time"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Pacing Card -->
+    <section class="card" aria-label="Pacing">
+      <div class="verdict-header">
+        <div class="verdict-left">
+          <span class="verdict-badge" id="verdictBadge">On pace</span>
+          <h2 class="verdict-title" id="verdictTitle">Even with the clock</h2>
+        </div>
+        <div class="delta-readout" id="deltaValue" title="Usage vs. elapsed time">0.0%</div>
+      </div>
+
+      <div class="gauge-box">
+        <div class="track-meta">
+          <span><strong id="usagePctLabel">60%</strong> used</span>
+          <span id="quotaLeftLabel">40% left</span>
+        </div>
+
+        <div class="bar-outer">
+          <div class="bar-fill-usage" id="usageBarFill" style="width: 60%"></div>
+          <div class="pace-marker" id="paceMarker" style="left: 63.7%">
+            <span class="pace-marker-label" id="paceMarkerLabel">NOW · 63.7%</span>
+          </div>
+        </div>
+
+        <div class="week-strip" id="weekStrip"></div>
+      </div>
+    </section>
+
+    <!-- Bottom Telemetry Cards -->
+    <section class="metrics-grid" aria-label="Metrics">
+      <div class="metric-card">
+        <span class="metric-label">Time left</span>
+        <div class="metric-primary" id="countdownPrimary">--d --h --m</div>
+        <div class="metric-sub" id="countdownSub">Until Fri 12:00</div>
+      </div>
+
+      <div class="metric-card">
+        <span class="metric-label">Daily budget</span>
+        <div class="metric-primary" id="allowancePrimary">--% / day</div>
+        <div class="metric-sub" id="allowanceSub">--% / day used so far</div>
+      </div>
+
+      <div class="metric-card">
+        <span class="metric-label">Projected at reset</span>
+        <div class="metric-primary" id="projectionPrimary">--%</div>
+        <div class="metric-sub" id="projectionSub">--% unused</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = 'claude_pace_settings_v1';
+    const DAY_NAMES_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    const usageInput = document.getElementById('usageInput');
+    const usageSlider = document.getElementById('usageSlider');
+    const resetDaySelect = document.getElementById('resetDaySelect');
+    const resetTimeInput = document.getElementById('resetTimeInput');
+    const restoreDefaultScheduleBtn = document.getElementById('restoreDefaultSchedule');
+
+    let state = {
+      usedPct: 60,
+      resetDay: 5,
+      resetTime: '12:00'
+    };
+
+    /**
+     * Renders crisp PNG favicons (64x64 and 180x180 apple-touch-icon) via Canvas
+     * so pinned tabs in Safari, Arc, and Chrome display the icon even over file://
+     */
+    function generatePinnedIcons() {
+      const renderSize = (size) => {
+        const c = document.createElement('canvas');
+        c.width = size;
+        c.height = size;
+        const ctx = c.getContext('2d');
+        const s = size / 100;
+
+        // Background rounded rect
+        ctx.fillStyle = '#151513';
+        ctx.beginPath();
+        ctx.roundRect(0, 0, size, size, 22 * s);
+        ctx.fill();
+
+        // Subtle inner border
+        ctx.strokeStyle = '#2A2925';
+        ctx.lineWidth = 2.5 * s;
+        ctx.beginPath();
+        ctx.roundRect(3 * s, 3 * s, 94 * s, 94 * s, 19 * s);
+        ctx.stroke();
+
+        // Track background
+        ctx.fillStyle = '#162847';
+        ctx.beginPath();
+        ctx.roundRect(16 * s, 42 * s, 68 * s, 16 * s, 8 * s);
+        ctx.fill();
+
+        // Blue fill
+        ctx.fillStyle = '#3B82F6';
+        ctx.beginPath();
+        ctx.roundRect(16 * s, 42 * s, 42 * s, 16 * s, 8 * s);
+        ctx.fill();
+
+        // Coral NOW needle
+        ctx.fillStyle = '#D97757';
+        ctx.beginPath();
+        ctx.roundRect(62 * s, 24 * s, 6 * s, 52 * s, 3 * s);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(65 * s, 24 * s, 5 * s, 0, Math.PI * 2);
+        ctx.fill();
+
+        return c.toDataURL('image/png');
+      };
+
+      try {
+        document.getElementById('pngFavicon').href = renderSize(64);
+        document.getElementById('appleTouchIcon').href = renderSize(180);
+      } catch (e) {
+        // Ignore if roundRect unsupported
+      }
+    }
+
+    function loadSettings() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (typeof parsed.usedPct === 'number' && !isNaN(parsed.usedPct)) {
+            state.usedPct = Math.min(100, Math.max(0, parsed.usedPct));
+          }
+          if (typeof parsed.resetDay === 'number' && parsed.resetDay >= 0 && parsed.resetDay <= 6) {
+            state.resetDay = parsed.resetDay;
+          }
+          if (typeof parsed.resetTime === 'string' && /^\d{2}:\d{2}$/.test(parsed.resetTime)) {
+            state.resetTime = parsed.resetTime;
+          }
+        }
+      } catch (e) {}
+
+      usageInput.value = state.usedPct;
+      usageSlider.value = state.usedPct;
+      resetDaySelect.value = String(state.resetDay);
+      resetTimeInput.value = state.resetTime;
+    }
+
+    function saveSettings() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {}
+    }
+
+    function getCycleBounds(now, targetDay, timeStr) {
+      const [hours, minutes] = timeStr.split(':').map(Number);
+      const candidate = new Date(now);
+      candidate.setHours(hours || 0, minutes || 0, 0, 0);
+
+      const dayDiff = targetDay - candidate.getDay();
+      candidate.setDate(candidate.getDate() + dayDiff);
+
+      const nextReset = new Date(candidate);
+      if (nextReset.getTime() <= now.getTime()) {
+        nextReset.setDate(nextReset.getDate() + 7);
+      }
+
+      const lastReset = new Date(nextReset);
+      lastReset.setDate(lastReset.getDate() - 7);
+
+      return { lastReset, nextReset };
+    }
+
+    function formatDuration(ms) {
+      const totalMinutes = Math.max(0, Math.floor(ms / 60000));
+      const days = Math.floor(totalMinutes / (60 * 24));
+      const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+      const mins = totalMinutes % 60;
+
+      if (days > 0) {
+        return `${days}d ${hours}h ${String(mins).padStart(2, '0')}m`;
+      }
+      return `${hours}h ${String(mins).padStart(2, '0')}m`;
+    }
+
+    function formatShortDate(date) {
+      return date.toLocaleDateString('en-GB', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short'
+      });
+    }
+
+    function formatTimeHM(date) {
+      return date.toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    }
+
+    function render() {
+      const now = new Date();
+
+      // Live header clock (calm HH:MM without second jitter)
+      document.getElementById('liveTimeDisplay').textContent =
+        `${formatShortDate(now)}, ${formatTimeHM(now)}`;
+
+      // Show "Restore Fri 12:00" only if modified
+      const isDefaultSchedule = state.resetDay === 5 && state.resetTime === '12:00';
+      restoreDefaultScheduleBtn.classList.toggle('visible', !isDefaultSchedule);
+
+      const { lastReset, nextReset } = getCycleBounds(now, state.resetDay, state.resetTime);
+      const totalMs = nextReset.getTime() - lastReset.getTime();
+      const elapsedMs = Math.max(0, Math.min(totalMs, now.getTime() - lastReset.getTime()));
+      const remainingMs = Math.max(0, nextReset.getTime() - now.getTime());
+
+      const elapsedPct = (elapsedMs / totalMs) * 100;
+      const usedPct = state.usedPct;
+      const remainingQuotaPct = Math.max(0, 100 - usedPct);
+      const deltaPct = usedPct - elapsedPct;
+
+      // Single bar & NOW marker
+      const usedFormatted = Number.isInteger(usedPct) ? `${usedPct}%` : `${usedPct.toFixed(1)}%`;
+      const leftFormatted = Number.isInteger(remainingQuotaPct) ? `${remainingQuotaPct}%` : `${remainingQuotaPct.toFixed(1)}%`;
+      document.getElementById('usagePctLabel').textContent = usedFormatted;
+      document.getElementById('quotaLeftLabel').textContent = `${leftFormatted} left`;
+      document.getElementById('usageBarFill').style.width = `${Math.min(100, Math.max(0, usedPct))}%`;
+
+      const clampedElapsed = Math.min(100, Math.max(0, elapsedPct));
+      const markerEl = document.getElementById('paceMarker');
+      const markerLabelEl = document.getElementById('paceMarkerLabel');
+      markerEl.style.left = `${clampedElapsed}%`;
+      markerLabelEl.textContent = `NOW · ${elapsedPct.toFixed(1)}%`;
+
+      // Keep marker label inside card edges near 0% or 100%
+      if (clampedElapsed < 10) {
+        markerLabelEl.style.transform = 'translateX(-15%)';
+      } else if (clampedElapsed > 90) {
+        markerLabelEl.style.transform = 'translateX(-85%)';
+      } else {
+        markerLabelEl.style.transform = 'translateX(-50%)';
+      }
+
+      // Delta & Verdict
+      const deltaEl = document.getElementById('deltaValue');
+      const sign = deltaPct > 0 ? '+' : '';
+      deltaEl.textContent = `${sign}${deltaPct.toFixed(1)}%`;
+
+      const deltaHours = Math.abs(deltaPct) * 1.68;
+      const deltaTimeStr = deltaHours >= 24
+        ? `${(deltaHours / 24).toFixed(1)}d`
+        : `${deltaHours.toFixed(1)}h`;
+
+      const badge = document.getElementById('verdictBadge');
+      const title = document.getElementById('verdictTitle');
+
+      if (usedPct >= 100) {
+        badge.textContent = 'Depleted';
+        badge.style.background = 'var(--status-hot-bg)';
+        badge.style.color = 'var(--status-hot)';
+        deltaEl.style.color = 'var(--status-hot)';
+        title.textContent = 'Weekly limit reached';
+      } else if (deltaPct <= -2.0) {
+        badge.textContent = 'Under pace';
+        badge.style.background = 'var(--status-good-bg)';
+        badge.style.color = 'var(--status-good)';
+        deltaEl.style.color = 'var(--status-good)';
+        title.textContent = `${deltaTimeStr} buffer ahead`;
+      } else if (deltaPct < 2.5) {
+        badge.textContent = 'On pace';
+        badge.style.background = 'var(--status-even-bg)';
+        badge.style.color = 'var(--status-even)';
+        deltaEl.style.color = 'var(--status-even)';
+        title.textContent = 'Tracking evenly with the clock';
+      } else if (deltaPct < 12) {
+        badge.textContent = 'Ahead of pace';
+        badge.style.background = 'var(--status-warn-bg)';
+        badge.style.color = 'var(--status-warn)';
+        deltaEl.style.color = 'var(--status-warn)';
+        title.textContent = `${deltaTimeStr} ahead of clock`;
+      } else {
+        badge.textContent = 'Burning hot';
+        badge.style.background = 'var(--status-hot-bg)';
+        badge.style.color = 'var(--status-hot)';
+        deltaEl.style.color = 'var(--status-hot)';
+        title.textContent = `${deltaTimeStr} ahead of clock`;
+      }
+
+      // Card 1: Time left
+      document.getElementById('countdownPrimary').textContent = formatDuration(remainingMs);
+      document.getElementById('countdownSub').textContent =
+        `Until ${formatShortDate(nextReset)}, ${state.resetTime}`;
+
+      // Card 2: Daily budget
+      const elapsedDays = elapsedMs / (24 * 3600000);
+      const remainingDays = remainingMs / (24 * 3600000);
+      const safePerDay = remainingDays > 0.01 ? remainingQuotaPct / remainingDays : remainingQuotaPct;
+      const burnedPerDay = elapsedDays > 0.05 ? usedPct / elapsedDays : 0;
+
+      document.getElementById('allowancePrimary').textContent =
+        remainingDays >= 0.25 ? `${safePerDay.toFixed(1)}% / day` : `${remainingQuotaPct.toFixed(0)}% left`;
+      document.getElementById('allowanceSub').textContent =
+        elapsedDays >= 0.1
+          ? `${burnedPerDay.toFixed(1)}% / day used so far`
+          : `14.3% / day even pace`;
+
+      // Card 3: Projected at reset
+      const projPrimary = document.getElementById('projectionPrimary');
+      const projSub = document.getElementById('projectionSub');
+      const elapsedHours = elapsedMs / 3600000;
+
+      if (usedPct === 0 || elapsedHours < 0.25) {
+        projPrimary.textContent = '—';
+        projPrimary.style.color = 'var(--text-primary)';
+        projSub.textContent = 'Waiting for usage data';
+      } else {
+        const ratePerMs = usedPct / elapsedMs;
+        const projectedEndPct = ratePerMs * totalMs;
+
+        if (projectedEndPct <= 100) {
+          projPrimary.textContent = `${projectedEndPct.toFixed(0)}%`;
+          projPrimary.style.color = 'var(--status-good)';
+          projSub.textContent = `${(100 - projectedEndPct).toFixed(0)}% to spare`;
+        } else {
+          const msTo100 = (100 - usedPct) / ratePerMs;
+          const depletionDate = new Date(now.getTime() + msTo100);
+          const hoursEarly = (nextReset.getTime() - depletionDate.getTime()) / 3600000;
+          projPrimary.textContent = `${DAY_NAMES_SHORT[depletionDate.getDay()]} ${formatTimeHM(depletionDate)}`;
+          projPrimary.style.color = 'var(--status-warn)';
+          projSub.textContent = `Hits 100% (~${hoursEarly.toFixed(0)}h early)`;
+        }
+      }
+
+      // 7-day strip under bar
+      const stripEl = document.getElementById('weekStrip');
+      stripEl.innerHTML = '';
+      for (let i = 0; i < 7; i++) {
+        const segStart = new Date(lastReset.getTime() + i * 24 * 3600000);
+        const segEnd = new Date(segStart.getTime() + 24 * 3600000);
+        let fillPct = 0;
+        let stateClass = '';
+        if (now >= segEnd) {
+          fillPct = 100;
+          stateClass = 'past';
+        } else if (now > segStart && now < segEnd) {
+          fillPct = ((now.getTime() - segStart.getTime()) / (24 * 3600000)) * 100;
+          stateClass = 'current';
+        }
+
+        const cumLinearEnd = Math.round(((i + 1) / 7) * 100);
+        const cell = document.createElement('div');
+        cell.className = `day-cell ${stateClass}`;
+        cell.innerHTML = `
+          <div class="day-cell-fill" style="width: ${fillPct.toFixed(1)}%"></div>
+          <span class="day-name">${DAY_NAMES_SHORT[segStart.getDay()]}</span>
+          <span class="day-pct">${cumLinearEnd}%</span>
+        `;
+        stripEl.appendChild(cell);
+      }
+    }
+
+    function updateUsedPct(val) {
+      const clamped = Math.min(100, Math.max(0, Number(val) || 0));
+      state.usedPct = clamped;
+      usageInput.value = clamped;
+      usageSlider.value = clamped;
+      saveSettings();
+      render();
+    }
+
+    usageInput.addEventListener('input', (e) => {
+      if (e.target.value === '') return;
+      const clamped = Math.min(100, Math.max(0, Number(e.target.value)));
+      state.usedPct = clamped;
+      usageSlider.value = clamped;
+      saveSettings();
+      render();
+    });
+
+    usageInput.addEventListener('blur', () => {
+      usageInput.value = state.usedPct;
+    });
+
+    usageSlider.addEventListener('input', (e) => {
+      updateUsedPct(e.target.value);
+    });
+
+    document.querySelectorAll('.chip-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        updateUsedPct(state.usedPct + Number(btn.dataset.step));
+      });
+    });
+
+    resetDaySelect.addEventListener('change', (e) => {
+      state.resetDay = Number(e.target.value);
+      saveSettings();
+      render();
+    });
+
+    resetTimeInput.addEventListener('change', (e) => {
+      if (e.target.value) {
+        state.resetTime = e.target.value;
+        saveSettings();
+        render();
+      }
+    });
+
+    restoreDefaultScheduleBtn.addEventListener('click', () => {
+      state.resetDay = 5;
+      state.resetTime = '12:00';
+      resetDaySelect.value = '5';
+      resetTimeInput.value = '12:00';
+      saveSettings();
+      render();
+    });
+
+    generatePinnedIcons();
+    loadSettings();
+    render();
+    setInterval(render, 10000);
+  </script>
+</body>
+</html>
